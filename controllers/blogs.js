@@ -4,7 +4,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 // const helper = require('../utils/helper')
-const logger = require('../middlewares/logger')
+// const logger = require('../middlewares/logger')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -41,6 +41,8 @@ blogsRouter.post('/', async (request, response, next) => {
     const user = await User.findById(request.user.id)
 
     blog.user = user.id
+
+    console.log(blog)
 
     const savedBlog = await blog.save()
     user.blogs = user.blogs.concat(savedBlog.id)
@@ -82,24 +84,19 @@ blogsRouter.delete('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.put('/:id', async (request, response) => {
-  const body = request.body
+blogsRouter.post('/:id/likes', async (request, response, next) => {
+  try{
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      { $inc: { likes: 1 } },
+      { new: true }
+    )
 
-  const blogLikes = {
-    author: body.author,
-    title: body.title,
-    url: body.url,
-    user: body.user.id,
-    likes: body.likes + 1,
+    response.status(201).json(updatedBlog)
+  } catch(e){
+    next(e)
   }
-
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    request.params.id,
-    blogLikes,
-    { new: true }
-  )
-
-  response.status(201).json(updatedBlog)
+  next()
 })
 
 module.exports = blogsRouter
