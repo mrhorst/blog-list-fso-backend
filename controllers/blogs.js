@@ -88,8 +88,14 @@ blogsRouter.post('/:id/likes', async (request, response, next) => {
   try{
     const updatedBlog = await Blog.findByIdAndUpdate(
       request.params.id,
-      { $inc: { likes: 1 } },
+      { $inc: { likes: 1 }, $addToSet: { likedByUser: request.user}},
       { new: true }
+    )
+    
+    await User.findByIdAndUpdate(
+      request.user,
+      { $addToSet: { likedBlogs: request.params.id}},
+      { new: true} 
     )
 
     response.status(201).json(updatedBlog)

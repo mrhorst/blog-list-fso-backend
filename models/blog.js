@@ -9,6 +9,10 @@ const blogSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  likedByUser: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }]
 })
 
 blogSchema.set('toJSON', {
