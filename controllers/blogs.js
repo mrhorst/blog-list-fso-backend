@@ -8,14 +8,22 @@ const User = require('../models/user')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
-    const allBlogsByAuthUser = await Blog.find({
-      user: request.user.id,
-    }).populate('user', {
+    const allBlogs = await Blog.find({}).populate('user', {
       username: 1,
       name: 1,
     })
 
-    response.json(allBlogsByAuthUser)
+    const blogsByAuthUser = allBlogs.filter(blog => {
+      return blog.user.id == request.user.id
+    })
+
+    const allBlogsExceptAuthUser = allBlogs.filter(blog => {
+      return blog.user.id !== request.user.id
+    })
+
+    const b = {blogsByAuthUser, allBlogsExceptAuthUser}
+
+    response.json(b)
   } catch (e) {
     next(e)
   }
